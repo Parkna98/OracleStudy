@@ -298,4 +298,60 @@ public class EmpDAO {
 			disConnection();
 		}
 	}
+	// 서브쿼리를 사용하지 않는 경우
+	public void subqueryNotData() {
+		try {
+			getConnection();
+			String sql="SELECT ROUND(AVG(sal)) "
+					+"FROM emp";
+			ps=conn.prepareStatement(sql); 
+			// ** SQL문장은 1개만 전송이 가능
+			ResultSet rs=ps.executeQuery();
+			rs.next(); // 커서의 위치 변경
+			int avg=rs.getInt(1);
+			rs.close();
+			
+			sql="SELECT ename,job,hiredate,sal "
+				+"FROM emp "
+				+"WHERE sal<?";
+			ps=conn.prepareStatement(sql);
+			ps.setInt(1, avg);
+			rs=ps.executeQuery();
+			
+			while(rs.next()) {
+				System.out.println(rs.getString(1)+" "
+								+rs.getString(2)+" "
+								+rs.getDate(3)+" "
+								+rs.getInt(4));
+			}
+			rs.close();	
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}finally {
+			disConnection();
+		}
+	}
+	// 서브쿼리를 사용한 경우
+	public void subqueryData() {
+		try {
+			getConnection();
+			String sql="SELECT ename,job,hiredate,sal "
+				+"FROM emp "
+				+"WHERE sal<(SELECT ROUND(AVG(sal)) FROM emp)";
+			ps=conn.prepareStatement(sql);
+			ResultSet rs=ps.executeQuery();
+			
+			while(rs.next()) {
+				System.out.println(rs.getString(1)+" "
+								+rs.getString(2)+" "
+								+rs.getDate(3)+" "
+								+rs.getInt(4));
+			}
+			rs.close();	
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}finally {
+			disConnection();
+		}
+	}
 }
